@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors'; 
-
+import  { connectionDb } from './config/database.js';
 const app = express()
 
 app.use(cors())
@@ -13,6 +13,7 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 3000
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+  await connectionDb();
   console.log(`Server running on port ${PORT}`)
 })
