@@ -8,16 +8,16 @@ import {
 
 const router = express.Router();
 
-/* Créer une réservation */
+// Créer une réservation
 router.post('/', createBooking);
 
-/* Récupérer une réservation */
+// Récupérer une réservation
 router.get('/:id', getBookingById);
 
-/* Récupérer les réservations d’un utilisateur */
+// Récupérer les réservations d’un utilisateur
 router.get('/user/:userId', getUserBookings);
 
-/* Annuler une réservation */
+// Annuler une réservation
 router.patch('/:id/cancel', cancelBooking);
 
 export default router;

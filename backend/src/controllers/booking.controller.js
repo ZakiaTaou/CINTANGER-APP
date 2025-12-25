@@ -1,43 +1,32 @@
-import { Booking, Screening, User } from '../models/index.js';
+import { Booking } from '../models/index.js';
+import {
+  createBookingWithSeats,
+  cancelBookingWithSeats,
+} from '../services/booking.service.js';
 
 /**
- * Créer une réservation
+ * POST /bookings
  */
 export const createBooking = async (req, res) => {
   try {
-    const { screeningId, userId, seatCount, seats } = req.body;
-
-    const screening = await Screening.findByPk(screeningId);
-    if (!screening) {
+    const booking = await createBookingWithSeats(req.body);
+    return res.status(201).json(booking);
+  } catch (error) {
+    if (error.message === 'SCREENING_NOT_FOUND') {
       return res.status(404).json({ message: 'Screening not found' });
     }
-
-    if (screening.availableSeats < seatCount) {
+    if (error.message === 'NOT_ENOUGH_SEATS') {
       return res.status(400).json({ message: 'Not enough available seats' });
     }
-
-    const booking = await Booking.create({
-      screeningId,
-      userId,
-      seatCount,
-      seats,
-      totalPrice: seatCount * screening.price,
-      status: 'CONFIRMED',
-      bookedAt: new Date(),
-    });
-
-    // Mise à jour des places disponibles
-    screening.availableSeats -= seatCount;
-    await screening.save();
-
-    res.status(201).json(booking);
-  } catch (error) {
-    res.status(500).json({ message: 'Error creating booking' });
+    if (error.message === 'INVALID_SEAT_COUNT') {
+      return res.status(400).json({ message: 'Invalid seat count' });
+    }
+    return res.status(500).json({ message: 'Error creating booking' });
   }
 };
 
 /**
- * Récupérer une réservation par ID
+ * GET /bookings/:id
  */
 export const getBookingById = async (req, res) => {
   try {
@@ -49,51 +38,43 @@ export const getBookingById = async (req, res) => {
       return res.status(404).json({ message: 'Booking not found' });
     }
 
-    res.json(booking);
+    return res.json(booking);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching booking' });
+    return res.status(500).json({ message: 'Error fetching booking' });
   }
 };
 
 /**
- * Récupérer les réservations d’un utilisateur
+ * GET /bookings/user/:userId
  */
 export const getUserBookings = async (req, res) => {
   try {
     const bookings = await Booking.findAll({
       where: { userId: req.params.userId },
       include: ['screening'],
+      order: [['createdAt', 'DESC']],
     });
 
-    res.json(bookings);
+    return res.json(bookings);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching user bookings' });
+    return res.status(500).json({ message: 'Error fetching user bookings' });
   }
 };
 
 /**
- * Annuler une réservation
+ * PATCH /bookings/:id/cancel
  */
 export const cancelBooking = async (req, res) => {
   try {
-    const booking = await Booking.findByPk(req.params.id, {
-      include: ['screening'],
-    });
-
-    if (!booking) {
+    const booking = await cancelBookingWithSeats(req.params.id);
+    return res.json({ message: 'Booking cancelled', booking });
+  } catch (error) {
+    if (error.message === 'BOOKING_NOT_FOUND') {
       return res.status(404).json({ message: 'Booking not found' });
     }
-
-    booking.status = 'CANCELLED';
-    booking.cancelledAt = new Date();
-    await booking.save();
-
-    // Rendre les places
-    booking.screening.availableSeats += booking.seatCount;
-    await booking.screening.save();
-
-    res.json({ message: 'Booking cancelled successfully' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error cancelling booking' });
+    if (error.message === 'BOOKING_ALREADY_CANCELLED') {
+      return res.status(400).json({ message: 'Booking already cancelled' });
+    }
+    return res.status(500).json({ message: 'Error cancelling booking' });
   }
 };
