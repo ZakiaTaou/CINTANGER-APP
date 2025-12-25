@@ -10,14 +10,14 @@ const sequelize = new Sequelize(
         host: process.env.DB_HOST || "localhost",
         dialect: "postgres",
         port: process.env.DB_PORT || 54321,
-        logging:true,
+        logging:false,
     }
     ); 
 export const connectionDb = async () => {
   try {
     await sequelize.authenticate();
-    console.log("MODELS:", Object.keys(sequelize.models));
-    await sequelize.sync({ force: true });
+    // console.log("MODELS:", Object.keys(sequelize.models));
+    await sequelize.sync({ alter: false });
     console.log("Connexion à PostgreSQL réussie!");
   } catch (error) {
     console.error(
