@@ -1,18 +1,25 @@
-  import express from 'express';
-  import cors from 'cors'; 
-  import  { connectionDb } from './config/database.js';
-  const app = express()
+import express from "express";
+import cors from "cors";
+import { connectionDb } from "./config/database.js";
+import "./models/index.js";
+import movieRoutes from "./routes/movie.routes.js";
+import bookingRoutes from "./routes/booking.routes.js";
 
-  app.use(cors())
-  app.use(express.json())
+const app = express();
+app.use(cors());
+app.use(express.json());
 
-  app.get('/', (req, res) => {
-    res.send('API CinéTanger OK 🎬')
-  })
+app.get("/", (req, res) => {
+  res.send("API CinéTanger OK 🎬");
+});
 
-  const PORT = process.env.PORT || 3000
 
-  app.listen(PORT, async () => {
-    await connectionDb();
-    console.log(`Server running on port ${PORT}`)
-  })
+app.use('/api/movies',movieRoutes)
+app.use('/api/bookings',bookingRoutes)
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, async () => {
+  connectionDb();
+
+  console.log(`Server running on port ${PORT}`);
+});
