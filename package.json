@@ -6,12 +6,15 @@
     "backend",
     "frontend"
   ],
-   "scripts": {
+  "scripts": {
     "backend": "npm run dev --workspace=backend",
     "frontend": "npm start --workspace=frontend",
     "seed": "npm run seed --workspace=backend",
     "install:all": "npm install",
     "install:backend": "npm install --workspace=backend",
     "install:mobile": "npm install --workspace=frontend"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0"
   }
 }
