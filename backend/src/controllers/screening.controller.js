@@ -1,14 +1,21 @@
-import { Screening, Movie, Room } from '../models/index.js';
-
+import { Screening, Movie, Room } from "../models/index.js";
 
 export const getAllScreenings = async (req, res, next) => {
   try {
     const screenings = await Screening.findAll({
       include: [
-        { model: Movie, attributes: ['id', 'title', 'duration'] },
-        { model: Room, attributes: ['id', 'name', 'capacity'] },
+        {
+          model: Movie,
+          as: "movie",
+          attributes: ["id", "title", "duration"],
+        },
+        {
+          model: Room,
+          as: "room",
+          attributes: ["id", "name", "capacity"],
+        },
       ],
-      order: [['startTime', 'ASC']],
+      order: [["startTime", "ASC"]],
     });
 
     res.status(200).json({
@@ -21,22 +28,29 @@ export const getAllScreenings = async (req, res, next) => {
   }
 };
 
-
 export const getScreeningById = async (req, res, next) => {
   try {
     const { id } = req.params;
 
     const screening = await Screening.findByPk(id, {
       include: [
-        { model: Movie, attributes: ['id', 'title', 'duration'] },
-        { model: Room, attributes: ['id', 'name', 'capacity'] },
+        {
+          model: Movie,
+          as: "movie",
+          attributes: ["id", "title", "duration"],
+        },
+        {
+          model: Room,
+          as: "room",
+          attributes: ["id", "name", "capacity"],
+        },
       ],
     });
 
     if (!screening) {
       return res.status(404).json({
         success: false,
-        message: 'Séance non trouvée',
+        message: "Séance non trouvée",
       });
     }
 
@@ -49,7 +63,6 @@ export const getScreeningById = async (req, res, next) => {
   }
 };
 
-
 export const createScreening = async (req, res, next) => {
   try {
     const { movieId, roomId, startTime, price } = req.body;
@@ -57,7 +70,7 @@ export const createScreening = async (req, res, next) => {
     if (!movieId || !roomId || !startTime) {
       return res.status(400).json({
         success: false,
-        message: 'Movie, salle et heure de début sont obligatoires',
+        message: "Movie, salle et heure de début sont obligatoires",
       });
     }
 
@@ -70,7 +83,7 @@ export const createScreening = async (req, res, next) => {
 
     res.status(201).json({
       success: true,
-      message: 'Séance créée avec succès',
+      message: "Séance créée avec succès",
       data: screening,
     });
   } catch (error) {
