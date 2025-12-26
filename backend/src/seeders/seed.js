@@ -9,11 +9,11 @@ import {
 import bcrypt from "bcrypt";
 
 export async function seedDatabase() {
-  const movieCount = await Movie.count();
-  if (movieCount > 0) {
-    console.log("🌱 Database already seeded");
-    return;
-  }
+  // const movieCount = await Movie.count();
+  // if (movieCount > 0) {
+  //   console.log("🌱 Database already seeded");
+  //   return;
+  // }
 
   console.log("🌱 Cleaning tables...");
   await Booking.destroy({ where: {}, truncate: true, cascade: true });
